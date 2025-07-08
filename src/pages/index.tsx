@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import DesktopIcon from '../components/ui/DesktopIcon';
-import Window from '../components/ui/Window';
-import StartMenu from '../components/ui/StartMenu';
+import DesktopIcon from '../components/DesktopIcon';
+import Window from '../components/Window';
+import StartMenu from '../components/StartMenu';
 
 const Index = () => {
   const [openWindows, setOpenWindows] = useState<string[]>([]);
