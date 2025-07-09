@@ -97,15 +97,15 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: "MS Sans Serif", sans-serif;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
     font-size: 11px;
   }
 }
 
-/* Retro Desktop Styles */
+/* Retro Desktop Styles
 .retro-desktop {
   cursor: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAAdgAAAHYBTnsmCAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAFYSURBVCiRpZM9SwNBEIafgwQSCxsLwcJCG1sLG0uxsLBQsLGwsLCwsLGwsLCwsLGwsLCwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwAAAAASUVORK5CYII='), auto;
-}
+} */
 
 .desktop-icon {
   user-select: none;
@@ -163,14 +163,14 @@
 }
 
 .retro-content {
-  font-family: "MS Sans Serif", sans-serif;
+  font-family: "Segoe UI", sans-serif;
   font-size: 11px;
 }
 
 .retro-tag {
   border-style: inset;
   border-width: 1px;
-  font-family: "MS Sans Serif", sans-serif;
+  font-family: "Segoe UI", sans-serif;
   font-size: 10px;
   font-weight: normal;
 }
@@ -213,4 +213,17 @@
 
 ::-webkit-scrollbar-corner {
   background: #c0c0c0;
+}
+
+/* Retro Windows 95 cursors */
+html, body {
+  cursor: url('/win-95-98/arrow.cur'), auto;
+}
+
+a, button {
+  cursor: url('/win-95-98/help_win95.cur'), pointer;
+}
+
+input, textarea {
+  cursor: url('/win-95-98/Beam.cur'), text;
 }

@@ -3,12 +3,15 @@ import DesktopIcon from '../components/DesktopIcon';
 import Window from '../components/Window';
 import StartMenu from '../components/StartMenu';
 
+const clickSound = new Audio('/mixkit-clear-mouse-clicks-2997.wav');
+
 const Index = () => {
   const [openWindows, setOpenWindows] = useState<string[]>([]);
   const [isStartMenuOpen, setIsStartMenuOpen] = useState(false);
 
   const openWindow = (windowType: string) => {
     if (!openWindows.includes(windowType)) {
+      clickSound.play();
       setOpenWindows([...openWindows, windowType]);
     }
   };
@@ -25,6 +28,7 @@ const Index = () => {
   };
 
   const toggleStartMenu = () => {
+    clickSound.play();
     setIsStartMenuOpen(!isStartMenuOpen);
   };
 
@@ -96,11 +100,11 @@ const Index = () => {
 
       {/* Sticky Note */}
       <div className="absolute top-1/2 right-12 transform -translate-y-1/2">
-        <div className="bg-yellow-200 border-2 border-yellow-300 p-3 shadow-lg transform rotate-2 cursor-pointer hover:rotate-1 transition-transform">
+        <div className="bg-yellow-200 border-2 border-yellow-300 p-3 shadow-lg transform rotate-2 hover:rotate-1 transition-transform">
           <div className="text-xs text-gray-800 font-mono leading-relaxed">
-            <div className="text-center font-bold mb-1">📝 Note</div>
-            <div>Need help?</div>
-            <div>Click Start!</div>
+            <div className="text-center font-bold mb-1"> Note</div>
+            <div>Click any icon</div>
+            <div>to open a window!</div>
           </div>
         </div>
       </div>
@@ -113,12 +117,13 @@ const Index = () => {
       {/* Taskbar */}
       <div className="taskbar fixed bottom-0 left-0 right-0 h-10 bg-gray-300 border-t-2 border-gray-400 flex items-center px-2 shadow-lg">
         <div 
-          className="start-button bg-gray-200 border-2 border-gray-400 px-3 py-1 text-xs font-bold hover:bg-gray-100 cursor-pointer select-none"
-          onClick={(e) => {
-            e.stopPropagation();
-            toggleStartMenu();
-          }}
-        >
+            className="start-button bg-gray-200 border-2 border-gray-400 px-3 py-1 text-xs font-bold hover:bg-gray-100 cursor-pointer select-none flex items-center gap-2"
+            onClick={(e) => {
+                e.stopPropagation();
+                toggleStartMenu();
+            }}
+            >
+            <img src="/icons/windows-0.png" alt="Windows 95 Start" className="w-4 h-4" />
           Start
         </div>
         <div className="flex-1" />
