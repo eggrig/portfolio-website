@@ -96,9 +96,16 @@
   }
 
   body {
-    @apply bg-background text-foreground;
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-    font-size: 11px;
+      @apply bg-background text-foreground;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 11px;
+
+      overflow: hidden;
+      height: 100%;
+      width: 100%;
+      position: fixed;
+      overscroll-behavior: none;
+      touch-action: none;
   }
 }
 
@@ -106,6 +113,22 @@
 .retro-desktop {
   cursor: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAAdgAAAHYBTnsmCAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAFYSURBVCiRpZM9SwNBEIafgwQSCxsLwcJCG1sLG0uxsLBQsLGwsLCwsLGwsLCwsLGwsLCwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLCwsLGwsLCwsLGwsLCwsLGwsLCwsLGwsLCwAAAAASUVORK5CYII='), auto;
 } */
+
+@keyframes minimizeEffect {
+  0% {
+    transform: scale(1) translate(0, 0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.1) translate(300px, 300px); /* X,Y offset to lower-right */
+    opacity: 0;
+  }
+}
+
+.animate-minimize {
+  animation: minimizeEffect 0.3s ease forwards;
+  transform-origin: bottom left; /* Makes it shrink toward bottom-right corner */
+}
 
 .desktop-icon {
   user-select: none;

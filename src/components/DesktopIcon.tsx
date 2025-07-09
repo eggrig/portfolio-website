@@ -1,25 +1,24 @@
-
 import React from 'react';
 
 interface DesktopIconProps {
-  icon: string;
+  icon: string; // Should be a file path to .png or .ico
   label: string;
   onClick: () => void;
 }
 
 const DesktopIcon: React.FC<DesktopIconProps> = ({ icon, label, onClick }) => {
   return (
-    <div 
-      className="desktop-icon flex flex-col items-center cursor-pointer p-2 rounded hover:bg-white/20 transition-all duration-200 select-none"
+    <div
+      className="desktop-icon flex flex-col items-center cursor-pointer p-2 select-none w-20"
       onClick={onClick}
       onDoubleClick={onClick}
     >
-      <div className="icon-container mb-2 relative">
-        <div className="text-6xl mb-1 drop-shadow-md filter">
-          {icon}
-        </div>
-      </div>
-      <span className="text-white text-sm font-bold text-center drop-shadow-lg px-1 py-0.5 rounded bg-black/30">
+      <img
+        src={icon}
+        alt={label}
+        className="w-10 h-10 mb-1"
+      />
+      <span className="text-[10px] font-[Tahoma] text-white drop-shadow-[1px_1px_0_#000] text-center">
         {label}
       </span>
     </div>

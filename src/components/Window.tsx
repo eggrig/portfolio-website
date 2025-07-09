@@ -5,15 +5,30 @@ interface WindowProps {
   title: string;
   children: React.ReactNode;
   onClose: () => void;
+  onMinimize: () => void;   
+  onRestore: () => void; 
+  isMinimized: boolean;
+  onFocus: () => void;
+  isFocused: boolean;    
   initialPosition?: { x: number; y: number };
 }
 
-const Window: React.FC<WindowProps> = ({ title, children, onClose, initialPosition = { x: 100, y: 100 } }) => {
+const Window: React.FC<WindowProps> = ({
+  title,
+  children,
+  onClose,
+  onMinimize,   
+  onRestore,    
+  isMinimized,
+  onFocus,
+  isFocused, 
+  initialPosition = { x: 100, y: 100 }
+}) => {
   const [position, setPosition] = useState(initialPosition);
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
-  const [isMaximized, setIsMaximized] = useState(false);
-  const [isMinimized, setIsMinimized] = useState(false);
+  const [isMaximized, setIsMaximized] = useState(false); 
+  const [isMinimizing, setIsMinimizing] = useState(false);
   const windowRef = useRef<HTMLDivElement>(null);
 
   const handleMouseDown = (e: React.MouseEvent | React.TouchEvent) => {
@@ -71,21 +86,32 @@ const Window: React.FC<WindowProps> = ({ title, children, onClose, initialPositi
     }
   };
 
-  const toggleMinimize = () => {
-    setIsMinimized(!isMinimized);
+  const handleMinimizeClick = () => {
+    setIsMinimizing(true);
+    setTimeout(() => {
+      setIsMinimizing(false);
+      onMinimize();
+    }, 300);
   };
+
+  if (isMinimized && !isMinimizing) return null;
 
   return (
     <div
       ref={windowRef}
-      className={`window fixed bg-gray-200 border-2 border-gray-400 shadow-lg z-50 ${isMinimized ? 'hidden' : ''}`}
+      onMouseDown={() => onFocus()}
+      onTouchStart={() => onFocus()}
+      className={`window fixed bg-gray-200 border-2 border-gray-400 shadow-lg z-50 ${
+        isMinimizing ? 'animate-minimize' : ''
+      }`}
       style={{
         left: isMaximized ? 0 : position.x,
         top: isMaximized ? 0 : position.y,
         width: isMaximized ? '100vw' : 'auto',
         height: isMaximized ? '100vh' : 'auto',
         minWidth: isMaximized ? '100%' : '400px',
-        minHeight: isMaximized ? '100%' : '300px'
+        minHeight: isMaximized ? '100%' : '300px',
+        zIndex: isMinimized ? 0 : isFocused ? 50 : 40
       }}
     >
       {/* Title Bar */}
@@ -98,7 +124,7 @@ const Window: React.FC<WindowProps> = ({ title, children, onClose, initialPositi
         <div className="flex gap-1">
           <button
             className="window-button w-4 h-4 bg-gray-300 border border-gray-400 text-xs flex items-center justify-center hover:bg-gray-400"
-            onClick={toggleMinimize}
+            onClick={handleMinimizeClick} 
           >
             <Minus size={8} />
           </button>

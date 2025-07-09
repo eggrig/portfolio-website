@@ -5,16 +5,30 @@ import StartMenu from '../components/StartMenu';
 
 const clickSound = new Audio('/mixkit-clear-mouse-clicks-2997.wav');
 
+const iconMap: Record<string, string> = {
+  resume: '/icons/briefcase-4.png',
+  projects: '/icons/directory_open_file_mydocs_2k-2.png',
+  contact: '/icons/phone.webp',
+  recyclebin: '/icons/recycle_bin_empty-2.png',
+  oldstuff: '/icons/package-1.png',
+  settings: '/icons/settings_gear-0.png'
+};
+
 const Index = () => {
   const [openWindows, setOpenWindows] = useState<string[]>([]);
   const [isStartMenuOpen, setIsStartMenuOpen] = useState(false);
+  const [minimizedWindows, setMinimizedWindows] = useState<string[]>([]);
+  const [focusedWindow, setFocusedWindow] = useState<string | null>(null);
 
-  const openWindow = (windowType: string) => {
+    const openWindow = (windowType: string) => {
     if (!openWindows.includes(windowType)) {
-      clickSound.play();
-      setOpenWindows([...openWindows, windowType]);
+        clickSound.play();
+        setOpenWindows([...openWindows, windowType]);
+    } else if (minimizedWindows.includes(windowType)) {
+        setMinimizedWindows(minimizedWindows.filter(w => w !== windowType));
     }
-  };
+    };
+
 
   const closeWindow = (windowType: string) => {
     setOpenWindows(openWindows.filter(window => window !== windowType));
@@ -55,46 +69,46 @@ const Index = () => {
       {/* Main Desktop Icons */}
       <div className="desktop-icons absolute top-8 left-8 flex flex-col gap-8">
         <DesktopIcon
-          icon="📄"
-          label="Resume"
-          onClick={() => openWindow('resume')}
+            icon="/icons/briefcase-4.png"
+            label="Resume"
+            onClick={() => openWindow('resume')}
         />
         <DesktopIcon
-          icon="🗂️"
-          label="Projects"
-          onClick={() => openWindow('projects')}
+            icon="/icons/directory_open_file_mydocs_2k-2.png"
+            label="Projects"
+            onClick={() => openWindow('projects')}
         />
         <DesktopIcon
-          icon="📞"
-          label="Contact"
-          onClick={() => openWindow('contact')}
+            icon="/icons/phone.webp"
+            label="Contact"
+            onClick={() => openWindow('contact')}
         />
       </div>
 
       {/* Recycle Bin in top right corner */}
       <div className="absolute top-8 right-8">
         <DesktopIcon
-          icon="🗑️"
-          label="Recycle Bin"
-          onClick={() => openWindow('recyclebin')}
+            icon="/icons/recycle_bin_empty-2.png"
+            label="Recycle Bin"
+            onClick={() => openWindow('recyclebin')}
         />
       </div>
 
       {/* Old Stuff folder */}
       <div className="absolute top-48 right-8">
         <DesktopIcon
-          icon="📁"
-          label="Old Stuff"
-          onClick={() => openWindow('oldstuff')}
+            icon="/icons/package-1.png"
+            label="Old Stuff"
+            onClick={() => openWindow('oldstuff')}
         />
       </div>
 
       {/* Settings.ini file */}
       <div className="absolute bottom-32 left-8">
         <DesktopIcon
-          icon="⚙️"
-          label="Settings.ini"
-          onClick={() => openWindow('settings')}
+            icon="/icons/settings_gear-0.png"
+            label="Settings.ini"
+            onClick={() => openWindow('settings')}
         />
       </div>
 
@@ -114,23 +128,57 @@ const Index = () => {
         <StartMenu onClose={() => setIsStartMenuOpen(false)} />
       )}
 
-      {/* Taskbar */}
-      <div className="taskbar fixed bottom-0 left-0 right-0 h-10 bg-gray-300 border-t-2 border-gray-400 flex items-center px-2 shadow-lg">
-        <div 
+        {/* Taskbar */}
+        <div className="taskbar fixed bottom-0 left-0 right-0 h-10 bg-gray-300 border-t-2 border-gray-400 flex items-center px-2 shadow-lg">
+        {/* Start button */}
+        <div
             className="start-button bg-gray-200 border-2 border-gray-400 px-3 py-1 text-xs font-bold hover:bg-gray-100 cursor-pointer select-none flex items-center gap-2"
             onClick={(e) => {
-                e.stopPropagation();
-                toggleStartMenu();
+            e.stopPropagation();
+            toggleStartMenu();
+            }}
+        >
+            <img src="/icons/windows-0.png" alt="Windows 95 Start" className="w-4 h-4" />
+            Start
+        </div>
+
+        {/* Program buttons */}
+        {openWindows.slice(0, 2).map((windowType) => (
+            <button
+            key={windowType}
+            className={`start-button border-2 border-gray-400 px-3 py-1 text-xs font-bold flex items-center gap-2 ml-2 ${
+                minimizedWindows.includes(windowType) ? 'bg-gray-400' : 'bg-gray-200'
+            }`}
+            onClick={() => {
+                if (minimizedWindows.includes(windowType)) {
+                setMinimizedWindows(minimizedWindows.filter(w => w !== windowType));
+                } else {
+                setMinimizedWindows([...minimizedWindows, windowType]);
+                }
             }}
             >
-            <img src="/icons/windows-0.png" alt="Windows 95 Start" className="w-4 h-4" />
-          Start
-        </div>
+            <img src={iconMap[windowType]} alt="" className="w-4 h-4" />
+            {windowType}
+            </button>
+        ))}
+
+        {/* Overflow */}
+        {openWindows.length > 2 && (
+            <button
+            className="start-button border-2 border-gray-400 px-3 py-1 text-xs font-bold flex items-center gap-2 ml-2 bg-gray-200 hover:bg-gray-300"
+            onClick={() => {
+            }}
+            >
+            ...
+            </button>
+        )}
+
         <div className="flex-1" />
+
         <div className="time bg-gray-200 border border-gray-400 px-2 py-1 text-xs">
-          {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
         </div>
-      </div>
+        </div>
 
       {/* Windows */}
       {openWindows.map((windowType, index) => {
@@ -138,12 +186,23 @@ const Index = () => {
           case 'resume':
             return (
               <Window
-                key="resume"
-                title="Resume - My CV"
-                onClose={() => closeWindow('resume')}
-                initialPosition={getWindowPosition(index)}
-              >
-                <div className="retro-content">
+                 key="resume"
+                    title="Resume - My CV"
+                    onClose={() => closeWindow('resume')}
+                    isMinimized={minimizedWindows.includes('resume')}
+                    onMinimize={() => {
+                        if (!minimizedWindows.includes('resume')) {
+                        setMinimizedWindows([...minimizedWindows, 'resume']);
+                        }
+                    }}
+                    onRestore={() => {
+                        setMinimizedWindows(minimizedWindows.filter(w => w !== 'resume'));
+                    }}
+                    onFocus={() => setFocusedWindow('resume')}
+                    isFocused={focusedWindow === 'resume'}       
+                    initialPosition={getWindowPosition(index)}
+                    >
+                                    <div className="retro-content">
                   <h2 className="text-lg font-bold mb-4 text-blue-800">John Developer</h2>
                   <div className="mb-4">
                     <h3 className="font-bold text-sm mb-2">ABOUT ME</h3>
@@ -182,230 +241,287 @@ const Index = () => {
               </Window>
             );
           
-          case 'projects':
+            case 'projects':
             return (
-              <Window
+                <Window
                 key="projects"
                 title="Projects - My Work"
                 onClose={() => closeWindow('projects')}
+                onMinimize={() => {
+                    if (!minimizedWindows.includes('projects')) {
+                    setMinimizedWindows([...minimizedWindows, 'projects']);
+                    }
+                }}
+                onRestore={() => {
+                    setMinimizedWindows(minimizedWindows.filter(w => w !== 'projects'));
+                }}
+                onFocus={() => setFocusedWindow('projects')}
+                isFocused={focusedWindow === 'projects'}
+                isMinimized={minimizedWindows.includes('projects')}
                 initialPosition={getWindowPosition(index)}
-              >
+                >
                 <div className="retro-content space-y-6">
-                  <div className="project-card bg-white border-2 border-gray-400 p-4 shadow-sm">
+                    <div className="project-card bg-white border-2 border-gray-400 p-4 shadow-sm">
                     <h3 className="font-bold text-blue-800 mb-2">E-Commerce Platform</h3>
                     <div className="flex flex-wrap gap-1 mb-3">
-                      {['React', 'Node.js', 'MongoDB', 'Stripe'].map(tag => (
+                        {['React', 'Node.js', 'MongoDB', 'Stripe'].map(tag => (
                         <span key={tag} className="retro-tag bg-green-200 border border-green-400 px-2 py-1 text-xs">
-                          {tag}
+                            {tag}
                         </span>
-                      ))}
+                        ))}
                     </div>
                     <p className="text-sm text-gray-700">
-                      Built a full-featured e-commerce platform with user authentication, payment processing, 
-                      and admin dashboard. Handles 1000+ daily transactions with 99.9% uptime.
+                        Built a full-featured e-commerce platform with user authentication, payment processing, 
+                        and admin dashboard. Handles 1000+ daily transactions with 99.9% uptime.
                     </p>
-                  </div>
-                  
-                  <div className="project-card bg-white border-2 border-gray-400 p-4 shadow-sm">
+                    </div>
+
+                    <div className="project-card bg-white border-2 border-gray-400 p-4 shadow-sm">
                     <h3 className="font-bold text-blue-800 mb-2">Task Management App</h3>
                     <div className="flex flex-wrap gap-1 mb-3">
-                      {['Vue.js', 'Firebase', 'PWA'].map(tag => (
+                        {['Vue.js', 'Firebase', 'PWA'].map(tag => (
                         <span key={tag} className="retro-tag bg-yellow-200 border border-yellow-400 px-2 py-1 text-xs">
-                          {tag}
+                            {tag}
                         </span>
-                      ))}
+                        ))}
                     </div>
                     <p className="text-sm text-gray-700">
-                      Progressive Web App for team collaboration and project management. Features real-time 
-                      updates, offline support, and intuitive drag-and-drop interface.
+                        Progressive Web App for team collaboration and project management. Features real-time 
+                        updates, offline support, and intuitive drag-and-drop interface.
                     </p>
-                  </div>
+                    </div>
                 </div>
-              </Window>
+                </Window>
             );
+
           
-          case 'contact':
+                    case 'contact':
             return (
-              <Window
+                <Window
                 key="contact"
                 title="Contact - Get In Touch"
                 onClose={() => closeWindow('contact')}
+                onMinimize={() => {
+                    if (!minimizedWindows.includes('contact')) {
+                    setMinimizedWindows([...minimizedWindows, 'contact']);
+                    }
+                }}
+                onRestore={() => {
+                    setMinimizedWindows(minimizedWindows.filter(w => w !== 'contact'));
+                }}
+                onFocus={() => setFocusedWindow('contact')}
+                isFocused={focusedWindow === 'contact'}
+                isMinimized={minimizedWindows.includes('contact')}
                 initialPosition={getWindowPosition(index)}
-              >
+                >
                 <div className="retro-content">
-                  <h2 className="text-lg font-bold mb-6 text-blue-800">Let's Connect!</h2>
-                  
-                  <div className="space-y-4">
+                    <h2 className="text-lg font-bold mb-6 text-blue-800">Let's Connect!</h2>
+
+                    <div className="space-y-4">
                     <div className="contact-item bg-white border-2 border-gray-400 p-3 shadow-sm">
-                      <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3">
                         <span className="text-2xl">📧</span>
                         <div>
-                          <strong className="text-sm">Email</strong>
-                          <div className="text-sm text-blue-600">john.developer@email.com</div>
+                            <strong className="text-sm">Email</strong>
+                            <div className="text-sm text-blue-600">john.developer@email.com</div>
                         </div>
-                      </div>
+                        </div>
                     </div>
-                    
+
                     <div className="contact-item bg-white border-2 border-gray-400 p-3 shadow-sm">
-                      <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3">
                         <span className="text-2xl">📱</span>
                         <div>
-                          <strong className="text-sm">Phone</strong>
-                          <div className="text-sm text-blue-600">+1 (555) 123-4567</div>
+                            <strong className="text-sm">Phone</strong>
+                            <div className="text-sm text-blue-600">+1 (555) 123-4567</div>
                         </div>
-                      </div>
+                        </div>
                     </div>
-                    
+
                     <div className="contact-item bg-white border-2 border-gray-400 p-3 shadow-sm">
-                      <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3">
                         <span className="text-2xl">🌐</span>
                         <div>
-                          <strong className="text-sm">LinkedIn</strong>
-                          <div className="text-sm text-blue-600">linkedin.com/in/johndeveloper</div>
+                            <strong className="text-sm">LinkedIn</strong>
+                            <div className="text-sm text-blue-600">linkedin.com/in/johndeveloper</div>
                         </div>
-                      </div>
+                        </div>
                     </div>
-                  </div>
-                  
-                  <div className="mt-6 p-3 bg-yellow-100 border-2 border-yellow-400">
+                    </div>
+
+                    <div className="mt-6 p-3 bg-yellow-100 border-2 border-yellow-400">
                     <p className="text-sm">
-                      💡 <strong>Available for freelance projects!</strong><br />
-                      Let's discuss your next big idea.
+                        💡 <strong>Available for freelance projects!</strong><br />
+                        Let's discuss your next big idea.
                     </p>
-                  </div>
+                    </div>
                 </div>
-              </Window>
+                </Window>
             );
 
-          case 'recyclebin':
+
+            case 'recyclebin':
             return (
-              <Window
+                <Window
                 key="recyclebin"
                 title="Recycle Bin"
                 onClose={() => closeWindow('recyclebin')}
+                onMinimize={() => {
+                    if (!minimizedWindows.includes('recyclebin')) {
+                    setMinimizedWindows([...minimizedWindows, 'recyclebin']);
+                    }
+                }}
+                onRestore={() => {
+                    setMinimizedWindows(minimizedWindows.filter(w => w !== 'recyclebin'));
+                }}
+                onFocus={() => setFocusedWindow('recyclebin')}
+                isFocused={focusedWindow === 'recyclebin'}
+                isMinimized={minimizedWindows.includes('recyclebin')}
                 initialPosition={getWindowPosition(index)}
-              >
+                >
                 <div className="retro-content text-center">
-                  <div className="text-8xl mb-4">🗑️</div>
-                  <h2 className="text-lg font-bold mb-4 text-blue-800">Recycle Bin</h2>
-                  <p className="text-sm text-gray-600 mb-6">
+                    <div className="text-8xl mb-4">🗑️</div>
+                    <h2 className="text-lg font-bold mb-4 text-blue-800">Recycle Bin</h2>
+                    <p className="text-sm text-gray-600 mb-6">
                     The Recycle Bin is empty.
-                  </p>
-                  <div className="bg-gray-100 border-2 border-gray-300 p-4 text-left">
-                    <div className="text-xs text-gray-700">
-                      <div className="mb-2"><strong>Objects:</strong> 0</div>
-                      <div><strong>Size:</strong> 0 bytes</div>
-                    </div>
-                  </div>
-                  <div className="mt-4 text-xs text-gray-500">
-                    Drag files here to delete them, or right-click to empty the bin.
-                  </div>
-                </div>
-              </Window>
-            );
-
-          case 'oldstuff':
-            return (
-              <Window
-                key="oldstuff"
-                title="Old Stuff"
-                onClose={() => closeWindow('oldstuff')}
-                initialPosition={getWindowPosition(index)}
-              >
-                <div className="retro-content">
-                  <div className="text-6xl mb-4 text-center">📁</div>
-                  <h2 className="text-lg font-bold mb-4 text-blue-800 text-center">Old Stuff</h2>
-                  
-                  <div className="space-y-3">
-                    <div className="bg-white border-2 border-gray-300 p-3 flex items-center gap-3 hover:bg-gray-50">
-                      <span className="text-2xl">💾</span>
-                      <div>
-                        <div className="text-sm font-bold">backup_2019.zip</div>
-                        <div className="text-xs text-gray-600">Modified: 3/15/2019</div>
-                      </div>
-                    </div>
-                    
-                    <div className="bg-white border-2 border-gray-300 p-3 flex items-center gap-3 hover:bg-gray-50">
-                      <span className="text-2xl">📷</span>
-                      <div>
-                        <div className="text-sm font-bold">vacation_photos</div>
-                        <div className="text-xs text-gray-600">Folder • 247 items</div>
-                      </div>
-                    </div>
-                    
-                    <div className="bg-white border-2 border-gray-300 p-3 flex items-center gap-3 hover:bg-gray-50">
-                      <span className="text-2xl">🎵</span>
-                      <div>
-                        <div className="text-sm font-bold">mixtape_vol1.mp3</div>
-                        <div className="text-xs text-gray-600">4.2 MB • Audio file</div>
-                      </div>
-                    </div>
-                    
-                    <div className="bg-white border-2 border-gray-300 p-3 flex items-center gap-3 hover:bg-gray-50">
-                      <span className="text-2xl">📄</span>
-                      <div>
-                        <div className="text-sm font-bold">resume_old.doc</div>
-                        <div className="text-xs text-gray-600">The one before the redesign</div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="mt-6 p-3 bg-yellow-100 border-2 border-yellow-300 text-center">
-                    <p className="text-xs">
-                      💭 <em>Ah, the memories... Maybe I'll organize this someday.</em>
                     </p>
-                  </div>
+                    <div className="bg-gray-100 border-2 border-gray-300 p-4 text-left">
+                    <div className="text-xs text-gray-700">
+                        <div className="mb-2"><strong>Objects:</strong> 0</div>
+                        <div><strong>Size:</strong> 0 bytes</div>
+                    </div>
+                    </div>
+                    <div className="mt-4 text-xs text-gray-500">
+                    Drag files here to delete them, or right-click to empty the bin.
+                    </div>
                 </div>
-              </Window>
+                </Window>
             );
 
-          case 'settings':
-            return (
-              <Window
-                key="settings"
-                title="Notepad - Settings.ini"
-                onClose={() => closeWindow('settings')}
-                initialPosition={getWindowPosition(index)}
-              >
-                <div className="retro-content">
-                  <div className="bg-white border-2 border-gray-300 p-4 font-mono text-xs min-h-[200px]">
-                    <div className="text-green-600 mb-2"># System Configuration File</div>
-                    <div className="text-green-600 mb-4"># Last modified: 1995-08-24</div>
-                    
-                    <div className="mb-3">
-                      <div className="text-blue-600 font-bold">[Display]</div>
-                      <div>Resolution=800x600</div>
-                      <div>ColorDepth=256</div>
-                      <div>Wallpaper=C:\WINDOWS\clouds.bmp</div>
-                    </div>
-                    
-                    <div className="mb-3">
-                      <div className="text-blue-600 font-bold">[Sound]</div>
-                      <div>Enabled=True</div>
-                      <div>Volume=75</div>
-                      <div>StartupSound=tada.wav</div>
-                    </div>
-                    
-                    <div className="mb-3">
-                      <div className="text-blue-600 font-bold">[Desktop]</div>
-                      <div>ShowClock=True</div>
-                      <div>AutoArrange=False</div>
-                      <div>GridSnap=True</div>
-                    </div>
-                    
-                    <div className="mb-3">
-                      <div className="text-blue-600 font-bold">[Network]</div>
-                      <div>DialUp=True</div>
-                      <div>ISP=LocalNet</div>
-                      <div>ModemSpeed=56k</div>
-                    </div>
-                    
-                    <div className="text-green-600 mt-4"># Do not edit unless you know what you're doing!</div>
-                  </div>
-                </div>
-              </Window>
-            );
-          
+            case 'oldstuff':
+  return (
+    <Window
+      key="oldstuff"
+      title="Old Stuff"
+      onClose={() => closeWindow('oldstuff')}
+      onMinimize={() => {
+        if (!minimizedWindows.includes('oldstuff')) {
+          setMinimizedWindows([...minimizedWindows, 'oldstuff']);
+        }
+      }}
+      onRestore={() => {
+        setMinimizedWindows(minimizedWindows.filter(w => w !== 'oldstuff'));
+      }}
+        onFocus={() => setFocusedWindow('oldstuff')}
+        isFocused={focusedWindow === 'oldstuff'}
+      isMinimized={minimizedWindows.includes('oldstuff')}
+      initialPosition={getWindowPosition(index)}
+    >
+      <div className="retro-content">
+        <div className="text-6xl mb-4 text-center">📁</div>
+        <h2 className="text-lg font-bold mb-4 text-blue-800 text-center">Old Stuff</h2>
+
+        <div className="space-y-3">
+          <div className="bg-white border-2 border-gray-300 p-3 flex items-center gap-3 hover:bg-gray-50">
+            <span className="text-2xl">💾</span>
+            <div>
+              <div className="text-sm font-bold">backup_2019.zip</div>
+              <div className="text-xs text-gray-600">Modified: 3/15/2019</div>
+            </div>
+          </div>
+
+          <div className="bg-white border-2 border-gray-300 p-3 flex items-center gap-3 hover:bg-gray-50">
+            <span className="text-2xl">📷</span>
+            <div>
+              <div className="text-sm font-bold">vacation_photos</div>
+              <div className="text-xs text-gray-600">Folder • 247 items</div>
+            </div>
+          </div>
+
+          <div className="bg-white border-2 border-gray-300 p-3 flex items-center gap-3 hover:bg-gray-50">
+            <span className="text-2xl">🎵</span>
+            <div>
+              <div className="text-sm font-bold">mixtape_vol1.mp3</div>
+              <div className="text-xs text-gray-600">4.2 MB • Audio file</div>
+            </div>
+          </div>
+
+          <div className="bg-white border-2 border-gray-300 p-3 flex items-center gap-3 hover:bg-gray-50">
+            <span className="text-2xl">📄</span>
+            <div>
+              <div className="text-sm font-bold">resume_old.doc</div>
+              <div className="text-xs text-gray-600">The one before the redesign</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-6 p-3 bg-yellow-100 border-2 border-yellow-300 text-center">
+          <p className="text-xs">
+            💭 <em>Ah, the memories... Maybe I'll organize this someday.</em>
+          </p>
+        </div>
+      </div>
+    </Window>
+  );
+
+
+                case 'settings':
+  return (
+    <Window
+      key="settings"
+      title="Notepad - Settings.ini"
+      onClose={() => closeWindow('settings')}
+      onMinimize={() => {
+        if (!minimizedWindows.includes('settings')) {
+          setMinimizedWindows([...minimizedWindows, 'settings']);
+        }
+      }}
+      onRestore={() => {
+        setMinimizedWindows(minimizedWindows.filter(w => w !== 'settings'));
+      }}
+        onFocus={() => setFocusedWindow('settings')}
+        isFocused={focusedWindow === 'settings'}
+      isMinimized={minimizedWindows.includes('settings')}
+      initialPosition={getWindowPosition(index)}
+    >
+      <div className="retro-content">
+        <div className="bg-white border-2 border-gray-300 p-4 font-mono text-xs min-h-[200px]">
+          <div className="text-green-600 mb-2"># System Configuration File</div>
+          <div className="text-green-600 mb-4"># Last modified: 1995-08-24</div>
+
+          <div className="mb-3">
+            <div className="text-blue-600 font-bold">[Display]</div>
+            <div>Resolution=800x600</div>
+            <div>ColorDepth=256</div>
+            <div>Wallpaper=C:\WINDOWS\clouds.bmp</div>
+          </div>
+
+          <div className="mb-3">
+            <div className="text-blue-600 font-bold">[Sound]</div>
+            <div>Enabled=True</div>
+            <div>Volume=75</div>
+            <div>StartupSound=tada.wav</div>
+          </div>
+
+          <div className="mb-3">
+            <div className="text-blue-600 font-bold">[Desktop]</div>
+            <div>ShowClock=True</div>
+            <div>AutoArrange=False</div>
+            <div>GridSnap=True</div>
+          </div>
+
+          <div className="mb-3">
+            <div className="text-blue-600 font-bold">[Network]</div>
+            <div>DialUp=True</div>
+            <div>ISP=LocalNet</div>
+            <div>ModemSpeed=56k</div>
+          </div>
+
+          <div className="text-green-600 mt-4"># Do not edit unless you know what you're doing!</div>
+        </div>
+      </div>
+    </Window>
+  );
           default:
             return null;
         }
