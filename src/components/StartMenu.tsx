@@ -12,8 +12,8 @@ const StartMenu: React.FC<StartMenuProps> = ({ onClose }) => {
     { name: 'Recycle Bin', icon: '/icons/recycle_bin_empty-2.png' },
     { name: 'Control Panel', icon: '/icons/directory_control_panel-4.png' },
     { name: 'Notepad', icon: '/icons/write_wordpad-1.png' },
-    { name: 'Paint', icon: '🎨' },
-    { name: 'Calculator', icon: '🧮' },
+    { name: 'MIDI playback', icon: '/icons/midi_bl-2.png' },
+    { name: 'Clock', icon: '/icons/clock-1.png' },
     { name: 'Solitaire', icon: '/icons/game_solitaire-0.png' },
     { name: 'Minesweeper', icon: '/icons/minesweeper-0.png' },
     { name: 'Internet Explorer', icon: '/icons/msie2-1.png' },
@@ -74,7 +74,7 @@ const StartMenu: React.FC<StartMenuProps> = ({ onClose }) => {
               className="flex items-center gap-3 px-3 py-2 text-xs hover:bg-blue-600 hover:text-white cursor-pointer transition-colors"
               onClick={() => handleProgramClick('Shut Down')}
             >
-              <img src="/icons/ac_plug-0.png" alt="Shut Down icon" className="w-4 h-4" />
+              <img src="/icons/shut_down.png" alt="Shut Down icon" className="w-4 h-4" />
               <span>Shut Down...</span>
             </div>
           </div>

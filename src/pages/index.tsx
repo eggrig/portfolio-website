@@ -2,8 +2,17 @@ import React, { useState } from 'react';
 import DesktopIcon from '../components/DesktopIcon';
 import Window from '../components/Window';
 import StartMenu from '../components/StartMenu';
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+} from '../components/ui/context-menu';
 
 const clickSound = new Audio('/mixkit-clear-mouse-clicks-2997.wav');
+const closeSound = new Audio('/mixkit-mouse-click-close-1113.wav'); 
+
 
 const iconMap: Record<string, string> = {
   resume: '/icons/briefcase-4.png',
@@ -19,6 +28,16 @@ const Index = () => {
   const [isStartMenuOpen, setIsStartMenuOpen] = useState(false);
   const [minimizedWindows, setMinimizedWindows] = useState<string[]>([]);
   const [focusedWindow, setFocusedWindow] = useState<string | null>(null);
+  const [currentWallpaper, setCurrentWallpaper] = useState(0);
+
+        const wallpapers = [
+        '/wallpapers/windowsog.png',
+        '/wallpapers/windows95-3.png',
+        '/wallpapers/teal.png',
+        '/wallpapers/windows95-2.png',
+        '/wallpapers/windowsxp.jpg',
+        '/wallpapers/cd.png',
+        ];
 
     const openWindow = (windowType: string) => {
     if (!openWindows.includes(windowType)) {
@@ -27,11 +46,13 @@ const Index = () => {
     } else if (minimizedWindows.includes(windowType)) {
         setMinimizedWindows(minimizedWindows.filter(w => w !== windowType));
     }
+      setFocusedWindow(windowType);
     };
 
 
   const closeWindow = (windowType: string) => {
     setOpenWindows(openWindows.filter(window => window !== windowType));
+    closeSound.play();
   };
 
   const getWindowPosition = (index: number) => {
@@ -52,12 +73,26 @@ const Index = () => {
       setIsStartMenuOpen(false);
     }
   };
+  
+    const handlePropertiesClick = () => {
+    setCurrentWallpaper((prev) => (prev + 1) % wallpapers.length);
+  };
 
-  return (
-    <div 
-      className="retro-desktop min-h-screen bg-gradient-to-br from-teal-400 via-teal-500 to-teal-600 relative overflow-hidden"
-      onClick={handleDesktopClick}
-    >
+return (
+  <ContextMenu>
+    <ContextMenuTrigger>
+      <div 
+                className="retro-desktop min-h-screen relative overflow-hidden"
+        onClick={handleDesktopClick}
+        style={{
+            backgroundImage: `url(${wallpapers[currentWallpaper]})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            minHeight: '100vh',
+            width: '100%',
+  }}
+      >
       {/* Desktop Background Pattern */}
       <div className="absolute inset-0 opacity-10">
         <div className="w-full h-full" style={{
@@ -113,15 +148,16 @@ const Index = () => {
       </div>
 
       {/* Sticky Note */}
-      <div className="absolute top-1/2 right-12 transform -translate-y-1/2">
-        <div className="bg-yellow-200 border-2 border-yellow-300 p-3 shadow-lg transform rotate-2 hover:rotate-1 transition-transform">
-          <div className="text-xs text-gray-800 font-mono leading-relaxed">
-            <div className="text-center font-bold mb-1"> Note</div>
-            <div>Click any icon</div>
-            <div>to open a window!</div>
-          </div>
+        <div className="absolute top-1/2 right-12 transform -translate-y-1/2">
+        <div className="bg-yellow-200 border border-yellow-400 p-2 shadow-[4px_4px_0px_rgba(0,0,0,0.3)] transform rotate-1 hover:rotate-0 transition-transform w-32">
+            <div className="text-[8px] text-gray-800 font-press leading-snug">
+            <div className="text-center font-bold mb-1">NOTE</div>
+            <div className="text-center">Click any icon</div>
+            <div className="text-center">to open a window!</div>
+            </div>
         </div>
-      </div>
+        </div>
+
 
       {/* Start Menu */}
       {isStartMenuOpen && (
@@ -144,21 +180,31 @@ const Index = () => {
 
         {/* Program buttons */}
         {openWindows.slice(0, 2).map((windowType) => (
-            <button
-            key={windowType}
-            className={`start-button border-2 border-gray-400 px-3 py-1 text-xs font-bold flex items-center gap-2 ml-2 ${
-                minimizedWindows.includes(windowType) ? 'bg-gray-400' : 'bg-gray-200'
-            }`}
-            onClick={() => {
+                        <button
+                key={windowType}
+                className={`
+                start-button border-2 border-gray-400 px-2 py-1 text-xs font-bold flex items-center gap-2 ml-2 
+                ${minimizedWindows.includes(windowType) ? 'bg-gray-400' : 'bg-gray-200'}
+                overflow-hidden whitespace-nowrap text-ellipsis max-w-[80px] sm:max-w-none
+                `}
+                onClick={() => {
                 if (minimizedWindows.includes(windowType)) {
-                setMinimizedWindows(minimizedWindows.filter(w => w !== windowType));
+                    setMinimizedWindows(minimizedWindows.filter(w => w !== windowType));
                 } else {
-                setMinimizedWindows([...minimizedWindows, windowType]);
+                    setMinimizedWindows([...minimizedWindows, windowType]);
                 }
-            }}
+                }}
             >
-            <img src={iconMap[windowType]} alt="" className="w-4 h-4" />
-            {windowType}
+                <img src={iconMap[windowType]} alt="" className="w-4 h-4" />
+                <span className="truncate">
+                {windowType.includes('gallery') 
+                    ? windowType === 'gallery-ecommerce' 
+                    ? 'E-Com'
+                    : windowType === 'gallery-taskmanager'
+                        ? 'Tasks'
+                        : windowType
+                    : windowType}
+                </span>
             </button>
         ))}
 
@@ -240,12 +286,12 @@ const Index = () => {
                 </div>
               </Window>
             );
-          
-            case 'projects':
+                    
+                                        case 'projects':
             return (
                 <Window
                 key="projects"
-                title="Projects - My Work"
+                title="Projects - File Explorer"
                 onClose={() => closeWindow('projects')}
                 onMinimize={() => {
                     if (!minimizedWindows.includes('projects')) {
@@ -260,39 +306,292 @@ const Index = () => {
                 isMinimized={minimizedWindows.includes('projects')}
                 initialPosition={getWindowPosition(index)}
                 >
-                <div className="retro-content space-y-6">
-                    <div className="project-card bg-white border-2 border-gray-400 p-4 shadow-sm">
-                    <h3 className="font-bold text-blue-800 mb-2">E-Commerce Platform</h3>
-                    <div className="flex flex-wrap gap-1 mb-3">
-                        {['React', 'Node.js', 'MongoDB', 'Stripe'].map(tag => (
-                        <span key={tag} className="retro-tag bg-green-200 border border-green-400 px-2 py-1 text-xs">
-                            {tag}
-                        </span>
-                        ))}
+                <div className="retro-content bg-white flex flex-col h-[80vh]">
+                    {/* File Explorer Menu Bar */}
+                    <div className="bg-gray-200 border-b border-gray-400 p-1 mb-2">
+                    <div className="flex gap-4 text-xs">
+                        <span className="underline cursor-pointer">File</span>
+                        <span className="underline cursor-pointer">Edit</span>
+                        <span className="underline cursor-pointer">View</span>
+                        <span className="underline cursor-pointer">Help</span>
                     </div>
-                    <p className="text-sm text-gray-700">
-                        Built a full-featured e-commerce platform with user authentication, payment processing, 
-                        and admin dashboard. Handles 1000+ daily transactions with 99.9% uptime.
-                    </p>
                     </div>
 
-                    <div className="project-card bg-white border-2 border-gray-400 p-4 shadow-sm">
-                    <h3 className="font-bold text-blue-800 mb-2">Task Management App</h3>
-                    <div className="flex flex-wrap gap-1 mb-3">
-                        {['Vue.js', 'Firebase', 'PWA'].map(tag => (
-                        <span key={tag} className="retro-tag bg-yellow-200 border border-yellow-400 px-2 py-1 text-xs">
-                            {tag}
-                        </span>
-                        ))}
+                    {/* Toolbar */}
+                    <div className="bg-gray-200 border border-gray-400 p-2 flex gap-2">
+                    <button className="retro-button px-2 py-1 text-xs border border-gray-400 bg-gray-100 hover:bg-gray-200 active:translate-y-px">↑</button>
+                    <button className="retro-button px-2 py-1 text-xs border border-gray-400 bg-gray-100 hover:bg-gray-200 active:translate-y-px">✂</button>
+                    <button className="retro-button px-2 py-1 text-xs border border-gray-400 bg-gray-100 hover:bg-gray-200 active:translate-y-px">📋</button>
+                    <button className="retro-button px-2 py-1 text-xs border border-gray-400 bg-gray-100 hover:bg-gray-200 active:translate-y-px">📁</button>
+                    <div className="border-l border-gray-400 mx-2 h-4"></div>
+                    <div className="text-xs flex items-center">📁 C:\Projects</div>
                     </div>
-                    <p className="text-sm text-gray-700">
-                        Progressive Web App for team collaboration and project management. Features real-time 
-                        updates, offline support, and intuitive drag-and-drop interface.
-                    </p>
+
+                    {/* Project Cards */}
+                    <div className="space-y-6">
+                    {/* Project 1 */}
+                    <div className="flex-1 overflow-auto p-4 space-y-6">
+                        <div className="title-bar bg-gradient-to-r from-blue-600 to-blue-800 text-white px-2 py-1 text-xs font-bold">
+                        📂 ECommerce_Platform.exe - Properties
+                        </div>
+                        <div className="p-4 bg-white">
+                        <div className="flex gap-4">
+                            <div className="flex-1">
+                            <h3 className="font-bold text-blue-800 mb-2 text-sm">E-Commerce Platform</h3>
+                            <p className="text-xs text-gray-700 mb-3 leading-relaxed">
+                                Full-featured online shopping platform with modern UI/UX, secure payment processing,
+                                and comprehensive admin dashboard for inventory management.
+                            </p>
+                            <div className="mb-3">
+                                <div className="text-xs font-bold mb-1">Key Features:</div>
+                                <ul className="text-xs text-gray-700 space-y-1">
+                                <li>• User authentication & profiles</li>
+                                <li>• Real-time inventory tracking</li>
+                                <li>• Secure payment integration</li>
+                                <li>• Order management system</li>
+                                </ul>
+                            </div>
+                            <div className="flex flex-wrap gap-1">
+                                <span className="retro-tech-button inline-block px-2 py-1 text-xs border border-gray-400 bg-red-200 text-red-800">React</span>
+                                <span className="retro-tech-button inline-block px-2 py-1 text-xs border border-gray-400 bg-green-200 text-green-800">Node.js</span>
+                                <span className="retro-tech-button inline-block px-2 py-1 text-xs border border-gray-400 bg-blue-200 text-blue-800">MongoDB</span>
+                                <span className="retro-tech-button inline-block px-2 py-1 text-xs border border-gray-400 bg-yellow-200 text-yellow-800">Stripe API</span>
+                            </div>
+                            </div>
+                            <div
+                            className="w-32 h-24 bg-gray-300 border-2 border-gray-500 flex items-center justify-center cursor-pointer hover:bg-gray-200 transition-colors"
+                            onClick={() => {
+                                openWindow('gallery-ecommerce');
+                                setFocusedWindow('gallery-ecommerce');
+                            }}
+                            >
+                            <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center">
+                                <div className="text-white text-xs font-bold text-center">
+                                <div>🛒</div>
+                                <div>SHOP</div>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+
+                    {/* Project 2 */}
+                    <div className="project-window bg-gray-100 border-2 border-gray-400">
+                        <div className="title-bar bg-gradient-to-r from-blue-600 to-blue-800 text-white px-2 py-1 text-xs font-bold">
+                        📂 TaskManager_Pro.exe - Properties
+                        </div>
+                        <div className="p-4 bg-white">
+                        <div className="flex gap-4">
+                            <div className="flex-1">
+                            <h3 className="font-bold text-blue-800 mb-2 text-sm">Task Management Pro</h3>
+                            <p className="text-xs text-gray-700 mb-3 leading-relaxed">
+                                Progressive Web Application for team collaboration and project tracking with
+                                real-time updates, offline support, and intuitive drag-and-drop interface.
+                            </p>
+                            <div className="mb-3">
+                                <div className="text-xs font-bold mb-1">Key Features:</div>
+                                <ul className="text-xs text-gray-700 space-y-1">
+                                <li>• Real-time collaboration</li>
+                                <li>• Drag & drop task boards</li>
+                                <li>• Offline functionality</li>
+                                <li>• Team performance analytics</li>
+                                </ul>
+                            </div>
+                            <div className="flex flex-wrap gap-1">
+                                <span className="retro-tech-button inline-block px-2 py-1 text-xs border border-gray-400 bg-green-200 text-green-800">Vue.js</span>
+                                <span className="retro-tech-button inline-block px-2 py-1 text-xs border border-gray-400 bg-orange-200 text-orange-800">Firebase</span>
+                                <span className="retro-tech-button inline-block px-2 py-1 text-xs border border-gray-400 bg-purple-200 text-purple-800">PWA</span>
+                                <span className="retro-tech-button inline-block px-2 py-1 text-xs border border-gray-400 bg-cyan-200 text-cyan-800">WebSockets</span>
+                            </div>
+                            </div>
+                            <div
+                            className="w-32 h-24 bg-gray-300 border-2 border-gray-500 flex items-center justify-center cursor-pointer hover:bg-gray-200 transition-colors"
+                            onClick={() => {
+                                openWindow('gallery-taskmanager');
+                                setFocusedWindow('gallery-taskmanager');
+                            }}
+                            >
+                            <div className="w-full h-full bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center">
+                                <div className="text-white text-xs font-bold text-center">
+                                <div>📋</div>
+                                <div>TASKS</div>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                    </div>
+
+                    {/* Status Bar */}
+                    <div className="bg-gray-200 border-t border-gray-400 p-1 text-xs">
+                    <div className="text-xs">2 object(s) selected</div>
                     </div>
                 </div>
                 </Window>
             );
+
+
+
+                    case 'gallery-ecommerce':
+            return (
+                <Window
+                key="gallery-ecommerce"
+                title="E-Commerce Platform - Screenshots"
+                onClose={() => closeWindow('gallery-ecommerce')}
+                onMinimize={() => {
+                    if (!minimizedWindows.includes('gallery-ecommerce')) {
+                    setMinimizedWindows([...minimizedWindows, 'gallery-ecommerce']);
+                    }
+                }}
+                onRestore={() => {
+                    setMinimizedWindows(minimizedWindows.filter(w => w !== 'gallery-ecommerce'));
+                }}
+                onFocus={() => setFocusedWindow('gallery-ecommerce')}
+                isFocused={focusedWindow === 'gallery-ecommerce'}
+                isMinimized={minimizedWindows.includes('gallery-ecommerce')}
+                initialPosition={getWindowPosition(index)}
+                >
+                <div className="retro-content bg-white h-full">
+                    {/* Gallery Menu Bar */}
+                    <div className="bg-gray-200 border-b border-gray-400 p-1 mb-4">
+                    <div className="flex gap-4 text-xs">
+                        <span className="underline cursor-pointer">File</span>
+                        <span className="underline cursor-pointer">Edit</span>
+                        <span className="underline cursor-pointer">View</span>
+                        <span className="underline cursor-pointer">Tools</span>
+                    </div>
+                    </div>
+
+                    {/* Toolbar */}
+                    <div className="bg-gray-200 border border-gray-400 p-2 mb-4 flex gap-2 items-center">
+                    <button className="retro-button px-2 py-1 text-xs">🖼️</button>
+                    <button className="retro-button px-2 py-1 text-xs">🔍</button>
+                    <button className="retro-button px-2 py-1 text-xs">📊</button>
+                    <div className="border-l border-gray-400 mx-2"></div>
+                    <div className="text-xs flex items-center">📁 Screenshots\ECommerce</div>
+                    </div>
+
+                    {/* Screenshot Gallery */}
+                    <div className="grid grid-cols-2 gap-4 p-4">
+                    <div className="bg-gray-100 border-2 border-gray-400 p-2">
+                        <div className="w-full h-32 bg-gradient-to-br from-blue-400 to-purple-600 border border-gray-500 mb-2 flex items-center justify-center">
+                        <div className="text-white text-sm font-bold">🛒 Homepage</div>
+                        </div>
+                        <div className="text-xs text-center">homepage.bmp</div>
+                    </div>
+
+                    <div className="bg-gray-100 border-2 border-gray-400 p-2">
+                        <div className="w-full h-32 bg-gradient-to-br from-green-400 to-blue-500 border border-gray-500 mb-2 flex items-center justify-center">
+                        <div className="text-white text-sm font-bold">💳 Checkout</div>
+                        </div>
+                        <div className="text-xs text-center">checkout.bmp</div>
+                    </div>
+
+                    <div className="bg-gray-100 border-2 border-gray-400 p-2">
+                        <div className="w-full h-32 bg-gradient-to-br from-purple-400 to-pink-500 border border-gray-500 mb-2 flex items-center justify-center">
+                        <div className="text-white text-sm font-bold">📊 Dashboard</div>
+                        </div>
+                        <div className="text-xs text-center">admin_panel.bmp</div>
+                    </div>
+
+                    <div className="bg-gray-100 border-2 border-gray-400 p-2">
+                        <div className="w-full h-32 bg-gradient-to-br from-orange-400 to-red-500 border border-gray-500 mb-2 flex items-center justify-center">
+                        <div className="text-white text-sm font-bold">🔍 Search</div>
+                        </div>
+                        <div className="text-xs text-center">product_search.bmp</div>
+                    </div>
+                    </div>
+
+                    {/* Status Bar */}
+                    <div className="absolute bottom-0 left-0 right-0 bg-gray-200 border-t border-gray-400 p-1">
+                    <div className="text-xs">4 screenshot(s) • E-Commerce Platform Gallery</div>
+                    </div>
+                </div>
+                </Window>
+            );
+
+
+            case 'gallery-taskmanager':
+            return (
+                <Window
+                key="gallery-taskmanager"
+                title="Task Manager Pro - Screenshots"
+                onClose={() => closeWindow('gallery-taskmanager')}
+                onMinimize={() => {
+                    if (!minimizedWindows.includes('gallery-taskmanager')) {
+                    setMinimizedWindows([...minimizedWindows, 'gallery-taskmanager']);
+                    }
+                }}
+                onRestore={() => {
+                    setMinimizedWindows(minimizedWindows.filter(w => w !== 'gallery-taskmanager'));
+                }}
+                onFocus={() => setFocusedWindow('gallery-taskmanager')}
+                isFocused={focusedWindow === 'gallery-taskmanager'}
+                isMinimized={minimizedWindows.includes('gallery-taskmanager')}
+                initialPosition={getWindowPosition(index)}
+                >
+                <div className="retro-content bg-white h-full">
+                    {/* Gallery Menu Bar */}
+                    <div className="bg-gray-200 border-b border-gray-400 p-1 mb-4">
+                    <div className="flex gap-4 text-xs">
+                        <span className="underline cursor-pointer">File</span>
+                        <span className="underline cursor-pointer">Edit</span>
+                        <span className="underline cursor-pointer">View</span>
+                        <span className="underline cursor-pointer">Tools</span>
+                    </div>
+                    </div>
+
+                    {/* Toolbar */}
+                    <div className="bg-gray-200 border border-gray-400 p-2 mb-4 flex gap-2 items-center">
+                    <button className="retro-button px-2 py-1 text-xs">🖼️</button>
+                    <button className="retro-button px-2 py-1 text-xs">🔍</button>
+                    <button className="retro-button px-2 py-1 text-xs">📊</button>
+                    <div className="border-l border-gray-400 mx-2"></div>
+                    <div className="text-xs flex items-center">📁 Screenshots\TaskManager</div>
+                    </div>
+
+                    {/* Screenshot Gallery */}
+                    <div className="grid grid-cols-2 gap-4 p-4">
+                    <div className="bg-gray-100 border-2 border-gray-400 p-2">
+                        <div className="w-full h-32 bg-gradient-to-br from-green-400 to-blue-500 border border-gray-500 mb-2 flex items-center justify-center">
+                        <div className="text-white text-sm font-bold">📋 Board View</div>
+                        </div>
+                        <div className="text-xs text-center">kanban_board.bmp</div>
+                    </div>
+
+                    <div className="bg-gray-100 border-2 border-gray-400 p-2">
+                        <div className="w-full h-32 bg-gradient-to-br from-cyan-400 to-purple-500 border border-gray-500 mb-2 flex items-center justify-center">
+                        <div className="text-white text-sm font-bold">👥 Team View</div>
+                        </div>
+                        <div className="text-xs text-center">team_collab.bmp</div>
+                    </div>
+
+                    <div className="bg-gray-100 border-2 border-gray-400 p-2">
+                        <div className="w-full h-32 bg-gradient-to-br from-orange-400 to-pink-500 border border-gray-500 mb-2 flex items-center justify-center">
+                        <div className="text-white text-sm font-bold">📈 Analytics</div>
+                        </div>
+                        <div className="text-xs text-center">analytics.bmp</div>
+                    </div>
+
+                    <div className="bg-gray-100 border-2 border-gray-400 p-2">
+                        <div className="w-full h-32 bg-gradient-to-br from-teal-400 to-green-500 border border-gray-500 mb-2 flex items-center justify-center">
+                        <div className="text-white text-sm font-bold">⚙️ Settings</div>
+                        </div>
+                        <div className="text-xs text-center">preferences.bmp</div>
+                    </div>
+                    </div>
+
+                    {/* Status Bar */}
+                    <div className="absolute bottom-0 left-0 right-0 bg-gray-200 border-t border-gray-400 p-1">
+                    <div className="text-xs">4 screenshot(s) • Task Manager Pro Gallery</div>
+                    </div>
+                </div>
+                </Window>
+            );
+
+
 
           
                     case 'contact':
@@ -380,7 +679,11 @@ const Index = () => {
                 initialPosition={getWindowPosition(index)}
                 >
                 <div className="retro-content text-center">
-                    <div className="text-8xl mb-4">🗑️</div>
+                        <img
+                        src="/icons/recycle_bin_empty-2.png"
+                        alt="Recycle Bin"
+                        className="w-16 h-16 mx-auto mb-4"
+                        />
                     <h2 className="text-lg font-bold mb-4 text-blue-800">Recycle Bin</h2>
                     <p className="text-sm text-gray-600 mb-6">
                     The Recycle Bin is empty.
@@ -526,7 +829,42 @@ const Index = () => {
             return null;
         }
       })}
-    </div>
+        </div>
+        </ContextMenuTrigger>
+
+    <ContextMenuContent className="w-48 bg-gray-200 border-2 border-gray-400 shadow-lg">
+      <ContextMenuItem className="text-xs hover:bg-blue-600 hover:text-white cursor-pointer px-2 py-1">
+        📁 New Folder
+      </ContextMenuItem>
+      <ContextMenuItem className="text-xs hover:bg-blue-600 hover:text-white cursor-pointer px-2 py-1">
+        📄 New Document
+      </ContextMenuItem>
+      <ContextMenuSeparator className="h-px bg-gray-400 my-1" />
+      <ContextMenuItem className="text-xs hover:bg-blue-600 hover:text-white cursor-pointer px-2 py-1">
+        📋 Paste
+      </ContextMenuItem>
+      <ContextMenuItem className="text-xs hover:bg-blue-600 hover:text-white cursor-pointer px-2 py-1">
+        🔗 Paste Shortcut
+      </ContextMenuItem>
+      <ContextMenuSeparator className="h-px bg-gray-400 my-1" />
+      <ContextMenuItem className="text-xs hover:bg-blue-600 hover:text-white cursor-pointer px-2 py-1">
+        ↻ Refresh
+      </ContextMenuItem>
+      <ContextMenuItem className="text-xs hover:bg-blue-600 hover:text-white cursor-pointer px-2 py-1">
+        🔤 Arrange Icons
+      </ContextMenuItem>
+      <ContextMenuItem className="text-xs hover:bg-blue-600 hover:text-white cursor-pointer px-2 py-1">
+        📐 Line up Icons
+      </ContextMenuItem>
+      <ContextMenuSeparator className="h-px bg-gray-400 my-1" />
+      <ContextMenuItem
+        className="text-xs hover:bg-blue-600 hover:text-white cursor-pointer px-2 py-1"
+        onClick={handlePropertiesClick}
+      >
+        ⚙️ Properties
+      </ContextMenuItem>
+    </ContextMenuContent>
+  </ContextMenu>
   );
 };
 
