@@ -4,9 +4,10 @@ const errorSound = new Audio('/mixkit-click-error-1110.wav');
 
 interface StartMenuProps {
   onClose: () => void;
+  openWindow: (type: string) => void;
 }
 
-const StartMenu: React.FC<StartMenuProps> = ({ onClose }) => {
+const StartMenu: React.FC<StartMenuProps> = ({ onClose, openWindow }) => {
   const programs = [
     { name: 'My Computer', icon: '/icons/computer_explorer-2.png' },
     { name: 'Recycle Bin', icon: '/icons/recycle_bin_empty-2.png' },
@@ -22,29 +23,35 @@ const StartMenu: React.FC<StartMenuProps> = ({ onClose }) => {
     { name: 'MSN', icon: '/icons/msn2-0.png' }
   ];
 
-  const handleProgramClick = (programName: string) => {
+const handleProgramClick = (programName: string) => {
+  if (programName === 'Settings') {
+    openWindow('settings');
+    onClose();
+  } else if (programName === 'Recycle Bin') {
+    openWindow('recyclebin');
+    onClose();
+  } else if (programName === 'Minesweeper') {
+    openWindow('minesweeper');
+    onClose();
+  } else {
     console.log(`Opening ${programName}... (nostalgic memories!)`);
     errorSound.play();
-    // Programs don't actually open, just for nostalgia
     onClose();
-  };
-
+  }
+};
 
   return (
     <div className="fixed bottom-10 left-2 z-50">
       <div className="flex bg-gray-200 border-2 border-gray-400 shadow-lg select-none">
-        {/* LEFT SIDEBAR */}
         <div className="bg-gradient-to-b from-blue-600 to-blue-800 text-white w-10 flex flex-col items-center justify-between py-2">
-                <img
-                  src="/icons/windows-0.png"
-                  alt="Windows 95 Logo"
-                  className="w-8 h-auto transform -rotate-90"
-                />
+          <img
+            src="/icons/windows-0.png"
+            alt="Windows 95 Logo"
+            className="w-8 h-auto transform -rotate-90"
+          />
         </div>
 
-        {/* RIGHT CONTENT */}
         <div className="w-64">
-          {/* Programs */}
           <div className="py-1">
             {programs.map((program) => (
               <div
@@ -58,10 +65,8 @@ const StartMenu: React.FC<StartMenuProps> = ({ onClose }) => {
             ))}
           </div>
 
-          {/* Separator */}
           <div className="border-t border-gray-400 mx-2"></div>
 
-          {/* Bottom Options */}
           <div className="py-1">
             <div
               className="flex items-center gap-3 px-3 py-2 text-xs hover:bg-blue-600 hover:text-white cursor-pointer transition-colors"

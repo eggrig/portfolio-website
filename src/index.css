@@ -179,6 +179,7 @@
   border-width: 2px;
   background: #c0c0c0;
   font-weight: bold;
+  /* font-family: 'Press Start 2P', cursive; */
 }
 
 .start-button:active {
@@ -244,7 +245,7 @@ html, body {
 }
 
 a, button {
-  cursor: url('/win-95-98/help_win95.cur'), pointer;
+  cursor: url('/win-95-98/Cursor_15.cur'), pointer;
 }
 
 input, textarea {

@@ -5,29 +5,33 @@ interface WindowProps {
   title: string;
   children: React.ReactNode;
   onClose: () => void;
-  onMinimize: () => void;   
-  onRestore: () => void; 
+  onMinimize: () => void;
+  onRestore: () => void;
   isMinimized: boolean;
   onFocus: () => void;
-  isFocused: boolean;    
+  isFocused: boolean;
   initialPosition?: { x: number; y: number };
+  className?: string;
+  noMinSize?: boolean;
 }
 
 const Window: React.FC<WindowProps> = ({
   title,
   children,
   onClose,
-  onMinimize,   
-  onRestore,    
+  onMinimize,
+  onRestore,
   isMinimized,
   onFocus,
-  isFocused, 
-  initialPosition = { x: 100, y: 100 }
+  isFocused,
+  initialPosition = { x: 100, y: 100 },
+  className,
+  noMinSize = false 
 }) => {
   const [position, setPosition] = useState(initialPosition);
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
-  const [isMaximized, setIsMaximized] = useState(false); 
+  const [isMaximized, setIsMaximized] = useState(false);
   const [isMinimizing, setIsMinimizing] = useState(false);
   const windowRef = useRef<HTMLDivElement>(null);
 
@@ -53,16 +57,14 @@ const Window: React.FC<WindowProps> = ({
         const clientX = 'clientX' in e ? e.clientX : e.touches[0].clientX;
         const clientY = 'clientY' in e ? e.clientY : e.touches[0].clientY;
 
-        setPosition({
-          x: clientX - dragOffset.x,
-          y: clientY - dragOffset.y
-        });
+        const newX = clientX - dragOffset.x;
+        const newY = Math.max(0, clientY - dragOffset.y);
+
+        setPosition({ x: newX, y: newY });
       }
     };
 
-    const handleUp = () => {
-      setIsDragging(false);
-    };
+    const handleUp = () => setIsDragging(false);
 
     if (isDragging) {
       document.addEventListener('mousemove', handleMove);
@@ -99,18 +101,18 @@ const Window: React.FC<WindowProps> = ({
   return (
     <div
       ref={windowRef}
-      onMouseDown={() => onFocus()}
-      onTouchStart={() => onFocus()}
-      className={`window fixed bg-gray-200 border-2 border-gray-400 shadow-lg z-50 ${
+      onMouseDown={onFocus}
+      onTouchStart={onFocus}
+      className={`window fixed bg-gray-200 border-2 border-gray-400 shadow-lg ${
         isMinimizing ? 'animate-minimize' : ''
-      }`}
+      } ${className || ''}`}
       style={{
         left: isMaximized ? 0 : position.x,
         top: isMaximized ? 0 : position.y,
         width: isMaximized ? '100vw' : 'auto',
         height: isMaximized ? '100vh' : 'auto',
-        minWidth: isMaximized ? '100%' : '400px',
-        minHeight: isMaximized ? '100%' : '300px',
+        minWidth: isMaximized ? '100%' : noMinSize ? 'auto' : '400px',
+        minHeight: isMaximized ? '100%' : noMinSize ? 'auto' : '300px',
         zIndex: isMinimized ? 0 : isFocused ? 50 : 40
       }}
     >
@@ -124,7 +126,7 @@ const Window: React.FC<WindowProps> = ({
         <div className="flex gap-1">
           <button
             className="window-button w-4 h-4 bg-gray-300 border border-gray-400 text-xs flex items-center justify-center hover:bg-gray-400"
-            onClick={handleMinimizeClick} 
+            onClick={handleMinimizeClick}
           >
             <Minus size={8} />
           </button>
@@ -144,7 +146,7 @@ const Window: React.FC<WindowProps> = ({
       </div>
 
       {/* Content */}
-      <div className="p-4 bg-gray-200 min-h-[250px] overflow-auto">
+      <div className={`bg-gray-200 overflow-auto ${noMinSize ? '' : 'p-4 min-h-[250px]'}`}>
         {children}
       </div>
     </div>

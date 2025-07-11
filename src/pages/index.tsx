@@ -1,7 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DesktopIcon from '../components/DesktopIcon';
 import Window from '../components/Window';
 import StartMenu from '../components/StartMenu';
+import AboutModal from '../components/AboutModal';
+import ProjectGallery from '../components/ProjectGallery';
+import Minesweeper from '../components/Minesweeper';
+
 import {
   ContextMenu,
   ContextMenuContent,
@@ -20,7 +24,8 @@ const iconMap: Record<string, string> = {
   contact: '/icons/phone.webp',
   recyclebin: '/icons/recycle_bin_empty-2.png',
   oldstuff: '/icons/package-1.png',
-  settings: '/icons/settings_gear-0.png'
+  settings: '/icons/settings_gear-0.png',
+  minesweeper: '/icons/minesweeper-0.png'
 };
 
 const Index = () => {
@@ -29,6 +34,8 @@ const Index = () => {
   const [minimizedWindows, setMinimizedWindows] = useState<string[]>([]);
   const [focusedWindow, setFocusedWindow] = useState<string | null>(null);
   const [currentWallpaper, setCurrentWallpaper] = useState(0);
+  const [isAboutOpen, setIsAboutOpen] = useState(true);
+  const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
 
         const wallpapers = [
         '/wallpapers/windowsog.png',
@@ -38,6 +45,11 @@ const Index = () => {
         '/wallpapers/windowsxp.jpg',
         '/wallpapers/cd.png',
         ];
+
+    // Show modal on page load
+    useEffect(() => {
+        setIsAboutModalOpen(true);
+    }, []);
 
     const openWindow = (windowType: string) => {
     if (!openWindows.includes(windowType)) {
@@ -82,26 +94,33 @@ return (
   <ContextMenu>
     <ContextMenuTrigger>
       <div 
-                className="retro-desktop min-h-screen relative overflow-hidden"
+        className={`retro-desktop min-h-screen relative overflow-hidden''}`}
         onClick={handleDesktopClick}
         style={{
-            backgroundImage: `url(${wallpapers[currentWallpaper]})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-            minHeight: '100vh',
-            width: '100%',
-  }}
+          backgroundImage: `url(${wallpapers[currentWallpaper]})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          minHeight: '100vh',
+          width: '100%',
+        }}
       >
-      {/* Desktop Background Pattern */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="w-full h-full" style={{
-          backgroundImage: `radial-gradient(circle at 20px 20px, rgba(255,255,255,0.3) 1px, transparent 1px)`,
-          backgroundSize: '40px 40px'
-        }} />
-      </div>
 
-      {/* Main Desktop Icons */}
+        {/* === ABOUT MODAL === */}
+        <AboutModal isOpen={isAboutModalOpen} onClose={() => setIsAboutModalOpen(false)} />
+
+        {/* Desktop Background Pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <div
+            className="w-full h-full"
+            style={{
+              backgroundImage: `radial-gradient(circle at 20px 20px, rgba(255,255,255,0.3) 1px, transparent 1px)`,
+              backgroundSize: '40px 40px',
+            }}
+          />
+        </div>
+
+        {/* Desktop Icons */}
       <div className="desktop-icons absolute top-8 left-8 flex flex-col gap-8">
         <DesktopIcon
             icon="/icons/briefcase-4.png"
@@ -130,13 +149,24 @@ return (
       </div>
 
       {/* Old Stuff folder */}
-      <div className="absolute top-48 right-8">
+      <div className="absolute top-72 right-8">
         <DesktopIcon
             icon="/icons/package-1.png"
             label="Old Stuff"
             onClick={() => openWindow('oldstuff')}
         />
       </div>
+
+      {/* Minesweeper */}
+      <div className="absolute top-32 right-8">
+        <DesktopIcon
+        icon="/icons/minesweeper-0.png"
+        label="Minesweeper"
+        onClick={() => openWindow('minesweeper')}
+      />
+      </div>
+
+      {/* Project Gallery */}
 
       {/* Settings.ini file */}
       <div className="absolute bottom-32 left-8">
@@ -147,11 +177,11 @@ return (
         />
       </div>
 
-      {/* Sticky Note */}
+        {/* Sticky Note */}
         <div className="absolute top-1/2 right-12 transform -translate-y-1/2">
         <div className="bg-yellow-200 border border-yellow-400 p-2 shadow-[4px_4px_0px_rgba(0,0,0,0.3)] transform rotate-1 hover:rotate-0 transition-transform w-32">
-            <div className="text-[8px] text-gray-800 font-press leading-snug">
-            <div className="text-center font-bold mb-1">NOTE</div>
+            <div className="font-pixel text-[8px] text-gray-800 leading-snug">
+            <div className="text-center mb-1">NOTE</div>
             <div className="text-center">Click any icon</div>
             <div className="text-center">to open a window!</div>
             </div>
@@ -160,10 +190,12 @@ return (
 
 
       {/* Start Menu */}
-      {isStartMenuOpen && (
-        <StartMenu onClose={() => setIsStartMenuOpen(false)} />
-      )}
-
+        {isStartMenuOpen && (
+        <StartMenu
+            onClose={() => setIsStartMenuOpen(false)}
+            openWindow={openWindow} 
+        />
+        )}
         {/* Taskbar */}
         <div className="taskbar fixed bottom-0 left-0 right-0 h-10 bg-gray-300 border-t-2 border-gray-400 flex items-center px-2 shadow-lg">
         {/* Start button */}
@@ -359,20 +391,19 @@ return (
                             </div>
                             </div>
                             <div
-                            className="w-32 h-24 bg-gray-300 border-2 border-gray-500 flex items-center justify-center cursor-pointer hover:bg-gray-200 transition-colors"
+                            className="w-32 h-24 border-2 border-gray-500 flex items-center justify-center cursor-pointer overflow-hidden"
                             onClick={() => {
                                 openWindow('gallery-ecommerce');
                                 setFocusedWindow('gallery-ecommerce');
                             }}
                             >
-                            <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center">
-                                <div className="text-white text-xs font-bold text-center">
-                                <div>🛒</div>
-                                <div>SHOP</div>
-                                </div>
+                            <img
+                                src="/screenshots/AlderliDashboard.png"
+                                alt="E-Commerce Platform"
+                                className="w-full h-full object-cover hover:scale-105 transition-transform"
+                            />
                             </div>
                             </div>
-                        </div>
                         </div>
                     </div>
 
@@ -406,18 +437,17 @@ return (
                             </div>
                             </div>
                             <div
-                            className="w-32 h-24 bg-gray-300 border-2 border-gray-500 flex items-center justify-center cursor-pointer hover:bg-gray-200 transition-colors"
+                            className="w-32 h-24 border-2 border-gray-500 flex items-center justify-center cursor-pointer overflow-hidden"
                             onClick={() => {
                                 openWindow('gallery-taskmanager');
                                 setFocusedWindow('gallery-taskmanager');
                             }}
                             >
-                            <div className="w-full h-full bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center">
-                                <div className="text-white text-xs font-bold text-center">
-                                <div>📋</div>
-                                <div>TASKS</div>
-                                </div>
-                            </div>
+                            <img
+                                src="/screenshots/AlderliDashboard.png"
+                                alt="Task Manager Pro"
+                                className="w-full h-full object-cover hover:scale-105 transition-transform"
+                            />
                             </div>
                         </div>
                         </div>
@@ -474,35 +504,7 @@ return (
                     </div>
 
                     {/* Screenshot Gallery */}
-                    <div className="grid grid-cols-2 gap-4 p-4">
-                    <div className="bg-gray-100 border-2 border-gray-400 p-2">
-                        <div className="w-full h-32 bg-gradient-to-br from-blue-400 to-purple-600 border border-gray-500 mb-2 flex items-center justify-center">
-                        <div className="text-white text-sm font-bold">🛒 Homepage</div>
-                        </div>
-                        <div className="text-xs text-center">homepage.bmp</div>
-                    </div>
-
-                    <div className="bg-gray-100 border-2 border-gray-400 p-2">
-                        <div className="w-full h-32 bg-gradient-to-br from-green-400 to-blue-500 border border-gray-500 mb-2 flex items-center justify-center">
-                        <div className="text-white text-sm font-bold">💳 Checkout</div>
-                        </div>
-                        <div className="text-xs text-center">checkout.bmp</div>
-                    </div>
-
-                    <div className="bg-gray-100 border-2 border-gray-400 p-2">
-                        <div className="w-full h-32 bg-gradient-to-br from-purple-400 to-pink-500 border border-gray-500 mb-2 flex items-center justify-center">
-                        <div className="text-white text-sm font-bold">📊 Dashboard</div>
-                        </div>
-                        <div className="text-xs text-center">admin_panel.bmp</div>
-                    </div>
-
-                    <div className="bg-gray-100 border-2 border-gray-400 p-2">
-                        <div className="w-full h-32 bg-gradient-to-br from-orange-400 to-red-500 border border-gray-500 mb-2 flex items-center justify-center">
-                        <div className="text-white text-sm font-bold">🔍 Search</div>
-                        </div>
-                        <div className="text-xs text-center">product_search.bmp</div>
-                    </div>
-                    </div>
+                    <ProjectGallery projectType="ecommerce" />
 
                     {/* Status Bar */}
                     <div className="absolute bottom-0 left-0 right-0 bg-gray-200 border-t border-gray-400 p-1">
@@ -553,35 +555,7 @@ return (
                     </div>
 
                     {/* Screenshot Gallery */}
-                    <div className="grid grid-cols-2 gap-4 p-4">
-                    <div className="bg-gray-100 border-2 border-gray-400 p-2">
-                        <div className="w-full h-32 bg-gradient-to-br from-green-400 to-blue-500 border border-gray-500 mb-2 flex items-center justify-center">
-                        <div className="text-white text-sm font-bold">📋 Board View</div>
-                        </div>
-                        <div className="text-xs text-center">kanban_board.bmp</div>
-                    </div>
-
-                    <div className="bg-gray-100 border-2 border-gray-400 p-2">
-                        <div className="w-full h-32 bg-gradient-to-br from-cyan-400 to-purple-500 border border-gray-500 mb-2 flex items-center justify-center">
-                        <div className="text-white text-sm font-bold">👥 Team View</div>
-                        </div>
-                        <div className="text-xs text-center">team_collab.bmp</div>
-                    </div>
-
-                    <div className="bg-gray-100 border-2 border-gray-400 p-2">
-                        <div className="w-full h-32 bg-gradient-to-br from-orange-400 to-pink-500 border border-gray-500 mb-2 flex items-center justify-center">
-                        <div className="text-white text-sm font-bold">📈 Analytics</div>
-                        </div>
-                        <div className="text-xs text-center">analytics.bmp</div>
-                    </div>
-
-                    <div className="bg-gray-100 border-2 border-gray-400 p-2">
-                        <div className="w-full h-32 bg-gradient-to-br from-teal-400 to-green-500 border border-gray-500 mb-2 flex items-center justify-center">
-                        <div className="text-white text-sm font-bold">⚙️ Settings</div>
-                        </div>
-                        <div className="text-xs text-center">preferences.bmp</div>
-                    </div>
-                    </div>
+                    <ProjectGallery projectType="taskmanager" />
 
                     {/* Status Bar */}
                     <div className="absolute bottom-0 left-0 right-0 bg-gray-200 border-t border-gray-400 p-1">
@@ -591,9 +565,6 @@ return (
                 </Window>
             );
 
-
-
-          
                     case 'contact':
             return (
                 <Window
@@ -767,6 +738,23 @@ return (
     </Window>
   );
 
+case 'minesweeper':
+  return (
+    <Window
+      key="minesweeper"
+      title="Minesweeper"
+      onClose={() => closeWindow('minesweeper')}
+      isMinimized={minimizedWindows.includes('minesweeper')}
+      onMinimize={() => setMinimizedWindows([...minimizedWindows, 'minesweeper'])}
+      onRestore={() => setMinimizedWindows(minimizedWindows.filter(w => w !== 'minesweeper'))}
+      onFocus={() => setFocusedWindow('minesweeper')}
+      isFocused={focusedWindow === 'minesweeper'}
+      initialPosition={getWindowPosition(index)}
+      noMinSize
+    >
+      <Minesweeper />
+    </Window>
+  );
 
                 case 'settings':
   return (
@@ -832,39 +820,52 @@ return (
         </div>
         </ContextMenuTrigger>
 
-    <ContextMenuContent className="w-48 bg-gray-200 border-2 border-gray-400 shadow-lg">
-      <ContextMenuItem className="text-xs hover:bg-blue-600 hover:text-white cursor-pointer px-2 py-1">
-        📁 New Folder
-      </ContextMenuItem>
-      <ContextMenuItem className="text-xs hover:bg-blue-600 hover:text-white cursor-pointer px-2 py-1">
-        📄 New Document
-      </ContextMenuItem>
-      <ContextMenuSeparator className="h-px bg-gray-400 my-1" />
-      <ContextMenuItem className="text-xs hover:bg-blue-600 hover:text-white cursor-pointer px-2 py-1">
-        📋 Paste
-      </ContextMenuItem>
-      <ContextMenuItem className="text-xs hover:bg-blue-600 hover:text-white cursor-pointer px-2 py-1">
-        🔗 Paste Shortcut
-      </ContextMenuItem>
-      <ContextMenuSeparator className="h-px bg-gray-400 my-1" />
-      <ContextMenuItem className="text-xs hover:bg-blue-600 hover:text-white cursor-pointer px-2 py-1">
-        ↻ Refresh
-      </ContextMenuItem>
-      <ContextMenuItem className="text-xs hover:bg-blue-600 hover:text-white cursor-pointer px-2 py-1">
-        🔤 Arrange Icons
-      </ContextMenuItem>
-      <ContextMenuItem className="text-xs hover:bg-blue-600 hover:text-white cursor-pointer px-2 py-1">
-        📐 Line up Icons
-      </ContextMenuItem>
-      <ContextMenuSeparator className="h-px bg-gray-400 my-1" />
-      <ContextMenuItem
-        className="text-xs hover:bg-blue-600 hover:text-white cursor-pointer px-2 py-1"
-        onClick={handlePropertiesClick}
-      >
-        ⚙️ Properties
-      </ContextMenuItem>
-    </ContextMenuContent>
+        <ContextMenuContent className="w-48 bg-gray-200 border-2 border-gray-400 shadow-lg">
+          <ContextMenuItem className="text-xs hover:bg-blue-600 hover:text-white cursor-pointer px-2 py-1 flex items-center gap-2">
+            New Folder
+          </ContextMenuItem>
+
+          <ContextMenuItem className="text-xs hover:bg-blue-600 hover:text-white cursor-pointer px-2 py-1 flex items-center gap-2">
+            New Document
+          </ContextMenuItem>
+
+          <ContextMenuSeparator className="h-px bg-gray-400 my-1" />
+
+          <ContextMenuItem className="text-xs hover:bg-blue-600 hover:text-white cursor-pointer px-2 py-1 flex items-center gap-2">
+            Paste
+          </ContextMenuItem>
+
+          <ContextMenuItem className="text-xs hover:bg-blue-600 hover:text-white cursor-pointer px-2 py-1 flex items-center gap-2">
+            Paste Shortcut
+          </ContextMenuItem>
+
+          <ContextMenuSeparator className="h-px bg-gray-400 my-1" />
+
+          <ContextMenuItem className="text-xs hover:bg-blue-600 hover:text-white cursor-pointer px-2 py-1 flex items-center gap-2">
+            Refresh
+          </ContextMenuItem>
+
+          <ContextMenuItem className="text-xs hover:bg-blue-600 hover:text-white cursor-pointer px-2 py-1 flex items-center gap-2">
+            Arrange Icons
+          </ContextMenuItem>
+
+          <ContextMenuItem className="text-xs hover:bg-blue-600 hover:text-white cursor-pointer px-2 py-1 flex items-center gap-2">
+            Line up Icons
+          </ContextMenuItem>
+
+          <ContextMenuSeparator className="h-px bg-gray-400 my-1" />
+
+          <ContextMenuItem
+            className="text-xs hover:bg-blue-600 hover:text-white cursor-pointer px-2 py-1 flex items-center gap-2"
+            onClick={handlePropertiesClick}
+          >
+            Properties
+          </ContextMenuItem>
+        </ContextMenuContent>
+
   </ContextMenu>
+
+  
   );
 };
 
